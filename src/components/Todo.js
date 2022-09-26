@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addTodo, deleteTodo } from '../actions/index';
 import todoAnimationGif from '../images/animation_500.gif';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import './Todo.css';
 
@@ -66,14 +67,44 @@ function Todo() {
         <div className="col-container-3">Completed</div>
       </div>
 
-      {list.map((listData) => (
-        <div className="card-data" key={listData.id}>
-          <div className="title-data">{listData.data.titleData}</div>
-          <div className="description-data">{listData.data.descriptionData}</div>
-          <button type="submit" className="delete-btn" onClick={() => dispatch(deleteTodo(listData.id))}>
-            Delete
-          </button>
-        </div>
+      {list.map((listData, index) => (
+        <DragDropContext>
+          <Droppable droppableId="cardData">
+            {(provided) => {
+              <div {...provided.droppableProps} ref={provided.innerRef}>
+                <Draggable
+                  key={listData.id}
+                  draggableId={listData.id}
+                  index={index}
+                >
+                  {(newProvided) => {
+                    <div
+                      className="card-data"
+                      key={listData.id}
+                      {...newProvided.draggableProps}
+                      {...newProvided.dragHandleProps}
+                      ref={provided.innerRef}
+                    >
+                      <div className="title-data">
+                        {listData.data.titleData}
+                      </div>
+                      <div className="description-data">
+                        {listData.data.descriptionData}
+                      </div>
+                      <button
+                        type="submit"
+                        className="delete-btn"
+                        onClick={() => dispatch(deleteTodo(listData.id))}
+                      >
+                        Delete
+                      </button>
+                    </div>;
+                  }}
+                </Draggable>
+              </div>;
+            }}
+          </Droppable>
+        </DragDropContext>
       ))}
     </div>
   );
